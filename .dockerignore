@@ -1,5 +1,14 @@
+# Git
+.git/
+.gitignore
+
+# Docker
+.dockerignore
+
 # Dependencies
 node_modules/
+*.sum
+*.lock
 
 # Build artifacts
 dist/
@@ -8,9 +17,6 @@ target/
 
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # OS generated files
 .DS_Store
