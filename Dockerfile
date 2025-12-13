@@ -1,6 +1,6 @@
 FROM alpine:3.23
 
-LABEL version=0.1.2
+LABEL version=0.1.3
 
 RUN apk add --update --no-cache \
         curl \
