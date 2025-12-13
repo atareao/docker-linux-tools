@@ -13,6 +13,7 @@ The image includes the following tools:
 *   `fd`: A simple, fast and user-friendly alternative to 'find'.
 *   `sd`: An intuitive find and replace CLI.
 *   `rnr`: A command-line tool to rename files and directories.
+*   `lsd`: A modern ls command with a lot of pretty colors and awesome icons.
 
 ## Build
 

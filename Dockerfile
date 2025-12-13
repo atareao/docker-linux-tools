@@ -8,6 +8,7 @@ RUN apk add --update --no-cache \
         neovim \
         ripgrep \
         fd \
+        lsd \
         sd && \
     rm -rf /var/lib/app/lists* && \
     rm -rf /var/cache/apk && \
