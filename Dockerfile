@@ -13,7 +13,6 @@ RUN apk add --update --no-cache \
         fish \
         starship \
         sd && \
-    rm -rf /var/lib/app/lists* && \
     rm -rf /var/cache/apk && \
     set -eux; \
     URL="https://github.com/ismaelgv/rnr/releases/download/v0.5.1/rnr-v0.5.1-x86_64-unknown-linux-musl.tar.gz"; \
@@ -32,4 +31,9 @@ RUN apk add --update --no-cache \
     chmod +x /usr/bin/rnr; \
     # 6. Limpieza: Eliminar el archivo descargado, el directorio temporal y las herramientas de instalación
     rm /tmp/$FILENAME; \
-    rm -rf $TEMP_DIR;
+    rm -rf $TEMP_DIR; && \
+    mkdir -p /root/.config/fish && \
+    echo 'starship init fish | source' > /root/.config/fish/config.fish && \
+    echo "alias ls='lsd'" >> /root/.config/fish/config.fish && \
+    echo "alias cat='bat -p'" >> /root/.config/fish/config.fish && \
+    echo "alias find='fd'" >> /root/.config/fish/config.fish
