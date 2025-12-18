@@ -1,6 +1,6 @@
 FROM alpine:3.23
 
-LABEL version=0.1.3
+LABEL version=0.1.4
 
 RUN apk add --update --no-cache \
         curl \
@@ -9,6 +9,9 @@ RUN apk add --update --no-cache \
         ripgrep \
         fd \
         lsd \
+        yazi \
+        fish \
+        starship \
         sd && \
     rm -rf /var/lib/app/lists* && \
     rm -rf /var/cache/apk && \
