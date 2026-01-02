@@ -1,6 +1,6 @@
 FROM alpine:3.23
 
-LABEL version=0.1.7
+LABEL version=0.1.8
 
 RUN apk add --update --no-cache \
         curl \
@@ -26,9 +26,11 @@ RUN apk add --update --no-cache \
     chmod +x /usr/bin/rnr && \
     rm /tmp/$FILENAME && \
     rm -rf $TEMP_DIR && \
+    mkdir -p /root/.config/fish/functions && \
     mkdir -p /root/.config/fish && \
     echo 'starship init fish | source' > /root/.config/fish/config.fish && \
     echo "alias ls='lsd'" >> /root/.config/fish/config.fish && \
     echo "alias cat='bat -p'" >> /root/.config/fish/config.fish && \
     echo "alias find='fd'" >> /root/.config/fish/config.fish
+COPY ./functions /root/.config/fish/functions/
 ENV SHELL=/usr/bin/fish
