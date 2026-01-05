@@ -22,46 +22,44 @@ function jelly-convert --description 'Convierte videos a 720p H.264 usando JSON 
             set -l v_height (echo $json_data | jq -r '.streams[] | select(.codec_type=="video") | .height' | head -n 1)
             set -l a_codec (echo $json_data | jq -r '.streams[] | select(.codec_type=="audio") | .codec_name' | head -n 1)
 
-            set -l needs_v_conv false
-            set -l needs_a_conv false
+            # Validar v_height (evita errores si es nulo)
+            if test "$v_height" = "null" -o -z "$v_height"
+                set v_height 0
+            end
+
+            set -l needs_conv false
             set -l v_arg "copy"
             set -l a_arg "copy"
-            set -l filter_arg ""
+            set -l ffmpeg_params # Lista para acumular parámetros
 
-            # 3. Lógica de verificación
-            # Convertimos a H264 si no lo es o si supera los 720p
-            if test "$v_codec" != "h264"
+            # 3. Lógica de Video
+            if test "$v_codec" != "h264" -o "$v_height" -gt 720
                 set v_arg "libx264"
-                set needs_v_conv true
+                set needs_conv true
+                if test "$v_height" -gt 720
+                    set -a ffmpeg_params -vf "scale=-1:720"
+                end
+                set -a ffmpeg_params -c:v libx264 -crf 20 -preset fast
+            else
+                set -a ffmpeg_params -c:v copy
             end
 
-            if test "$v_height" -gt 720
-                set filter_arg "-vf scale=-1:720"
-                set needs_v_conv true
-            end
-
-            # Convertimos audio si no es AAC
+            # 4. Lógica de Audio
             if test "$a_codec" != "aac"
-                set a_arg "aac"
-                set needs_a_conv true
+                set -a ffmpeg_params -c:a aac -b:a 128k
+                set needs_conv true
+            else
+                set -a ffmpeg_params -c:a copy
             end
 
-            # 4. Procesamiento
-            if test "$needs_v_conv" = "true" -o "$needs_a_conv" = "true"
+            # 5. Procesamiento
+            if test "$needs_conv" = "true"
                 echo "🍿 Procesando: $file (V: $v_codec @ {$v_height}p, A: $a_codec)"
                 set temp_file "$base"_tmp.mp4
                 
-                echo ffmpeg -v quiet -stats -i "$file" \
-                    $filter_arg \
-                    -c:v $v_arg $filter_arg -crf 20 -preset fast \
-                    -c:a $a_arg -b:a 128k \
-                    -movflags +faststart \
-                    -y "$temp_file"
-
+                # Ejecución de ffmpeg (Nota: "$file" sin comillas simples extra)
                 ffmpeg -v quiet -stats -i "$file" \
-                    $filter_arg \
-                    -c:v $v_arg $filter_arg -crf 20 -preset fast \
-                    -c:a $a_arg -b:a 128k \
+                    $ffmpeg_params \
                     -movflags +faststart \
                     -y "$temp_file"
 
