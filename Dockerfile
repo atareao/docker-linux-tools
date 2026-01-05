@@ -13,6 +13,7 @@ RUN apk add --update --no-cache \
         fish \
         starship \
         ffmpeg \
+        jq \
         sd && \
     rm -rf /var/cache/apk && \
     set -eux; \
