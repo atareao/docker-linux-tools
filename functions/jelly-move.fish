@@ -1,62 +1,71 @@
-function jelly-move --description 'Mueve vídeos de un origen obligatorio al directorio actual'
-    set -l SOURCE_DIR $argv[1]
+function jelly-move --description 'Mueve vídeos de carpetas con patrón y borra el origen'
+    set -l SOURCE_ROOT $argv[1]
+    set -l PATTERN $argv[2]
 
-    # 1. Validar que se ha pasado un origen
-    if test -z "$SOURCE_DIR"
-        set_color red
-        echo "❌ Error: El directorio de origen es obligatorio."
-        set_color normal
-        echo "Uso: move-videos-here /ruta/al/origen"
+    # 1. Validaciones
+    if test (count $argv) -lt 2
+        set_color red; echo "❌ Error: Faltan argumentos."; set_color normal
+        echo "Uso: move-and-clean-pattern <ruta_descargas> <patrón>"
         return 1
     end
 
-    # 2. Obtener rutas absolutas para comparar
-    set -l ABS_SOURCE (realpath "$SOURCE_DIR" 2>/dev/null)
+    set -l ABS_SOURCE (realpath "$SOURCE_ROOT" 2>/dev/null)
     set -l ABS_DEST (pwd)
 
-    # 3. Validar existencia del origen
     if not test -d "$ABS_SOURCE"
-        set_color red
-        echo "❌ Error: El directorio de origen '$SOURCE_DIR' no existe."
-        set_color normal
+        echo "❌ El origen no existe."
         return 1
     end
 
-    # 4. Restricción: Origen y destino no pueden coincidir
-    if test "$ABS_SOURCE" = "$ABS_DEST"
-        set_color yellow
-        echo "⚠️  Operación cancelada: El origen no puede ser el mismo que el destino ($ABS_DEST)."
-        set_color normal
-        return 1
-    end
+    set -l EXTENSIONS mkv mp4 avi mov
 
-    set -l EXTENSIONS mkv mp4 avi mov webm flv
-    echo "📦 Trayendo vídeos desde $ABS_SOURCE hacia el directorio actual..."
+    # 2. Obtener los directorios que coinciden con el patrón
+    set -l target_dirs (fd -t d -g "$PATTERN" "$ABS_SOURCE")
 
-    # 5. Buscar archivos de forma recursiva en el origen
-    set -l files (fd -t f -e mkv -e mp4 -e avi -e mov -e webm -e flv . "$ABS_SOURCE")
-
-    if test -z "$files"
-        echo "No se encontraron vídeos en el origen."
+    if test -z "$target_dirs"
+        echo "No se encontraron directorios para: $PATTERN"
         return 0
     end
 
-    set -l count 0
-    for file in $files
-        set -l filename (basename "$file")
-        set -l target "$ABS_DEST/$filename"
+    for dir in $target_dirs
+        echo "📂 Procesando carpeta: "(basename "$dir")
+        
+        # Buscamos los vídeos dentro de esta carpeta específica
+        set -l files (fd -t f -e mkv -e mp4 -e avi -e mov . "$dir")
+        set -l success_move false
 
-        # Verificar si el archivo ya existe en el destino
-        if test -f "$target"
-            set_color yellow
-            echo "⚠️  Omitido: '$filename' ya existe en el directorio actual."
-            set_color normal
-        else
-            mv "$file" "$target"
-            set count (math $count + 1)
-            echo "✅ Movido: $filename"
+        if test -z "$files"
+            echo "   ⚠️  No hay vídeos en esta carpeta. ¿Borrar de todos modos? (Omitiendo)"
+            continue
         end
+
+        for file in $files
+            set -l filename (basename "$file")
+            set -l target "$ABS_DEST/$filename"
+
+            if test -f "$target"
+                echo "   ⚠️  Conflicto: $filename ya existe en destino. No se borra el origen."
+                set success_move false
+                break
+            else
+                if mv "$file" "$target"
+                    echo "   ✅ Movido: $filename"
+                    set success_move true
+                else
+                    echo "   ❌ Error al mover $filename"
+                    set success_move false
+                    break
+                end
+            end
+        end
+
+        # 3. Borrar el directorio de origen solo si todo ha ido bien
+        if test "$success_move" = "true"
+            rm -rf "$dir"
+            echo "   🗑️  Directorio original eliminado."
+        end
+        echo "---"
     end
 
-    echo "🏁 ¡Finalizado! Se han movido $count archivos a $ABS_DEST."
+    echo "🏁 ¡Proceso de limpieza completado!"
 end
