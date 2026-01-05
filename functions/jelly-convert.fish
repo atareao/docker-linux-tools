@@ -30,8 +30,12 @@ function jelly-convert --description 'Convierte videos a 720p H.264 usando JSON 
 
             # 3. Lógica de verificación
             # Convertimos a H264 si no lo es o si supera los 720p
-            if test "$v_codec" != "h264" -o "$v_height" -gt 720
+            if test "$v_codec" != "h264"
                 set v_arg "libx264"
+                set needs_v_conv true
+            end
+
+            if test "$v_height" -gt 720
                 set filter_arg "-vf scale=-1:720"
                 set needs_v_conv true
             end
@@ -47,9 +51,16 @@ function jelly-convert --description 'Convierte videos a 720p H.264 usando JSON 
                 echo "🍿 Procesando: $file (V: $v_codec @ {$v_height}p, A: $a_codec)"
                 set temp_file "$base"_tmp.mp4
                 
+                echo ffmpeg -v quiet -stats -i "$file" \
+                    $filter_arg \
+                    -c:v $v_arg $filter_arg -crf 20 -preset fast \
+                    -c:a $a_arg -b:a 128k \
+                    -movflags +faststart \
+                    -y "$temp_file"
+
                 ffmpeg -v quiet -stats -i "$file" \
                     $filter_arg \
-                    -c:v $v_arg -crf 20 -preset fast \
+                    -c:v $v_arg $filter_arg -crf 20 -preset fast \
                     -c:a $a_arg -b:a 128k \
                     -movflags +faststart \
                     -y "$temp_file"
