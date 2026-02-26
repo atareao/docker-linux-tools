@@ -8,8 +8,9 @@ upgrade:
 build:
     echo {{version}}
     echo {{name}}
-    docker build -t {{user}}/{{name}}:{{version}} \
+    podman build -t {{user}}/{{name}}:{{version}} \
                  -t {{user}}/{{name}}:latest \
                  .
 push:
-    @docker image push --all-tags {{user}}/{{name}}
+    @podman image push {{user}}/{{name}}:{{version}}
+    @podman image push {{user}}/{{name}}:latest

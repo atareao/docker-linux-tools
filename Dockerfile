@@ -1,6 +1,6 @@
 FROM alpine:3.23
 
-LABEL version=0.1.9
+LABEL version=0.1.10
 
 RUN apk add --update --no-cache \
         curl \
@@ -10,6 +10,7 @@ RUN apk add --update --no-cache \
         fd \
         lsd \
         yazi \
+        7zip \
         fish \
         starship \
         ffmpeg \
