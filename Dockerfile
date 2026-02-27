@@ -1,8 +1,6 @@
 FROM alpine:3.23
 
-LABEL version=0.1.11
-ENV RNR_VERSION=0.5.1 \
-    RSNAME_VERSION=0.1.6
+LABEL version=0.1.12
 
 RUN apk add --update --no-cache \
         curl \
@@ -18,8 +16,10 @@ RUN apk add --update --no-cache \
         ffmpeg \
         jq \
         sd && \
-    rm -rf /var/cache/apk && \
-    set -eux; \
+    rm -rf /var/cache/apk
+ENV RNR_VERSION=0.5.1 \
+    RSNAME_VERSION=0.1.9
+RUN set -eux; \
     URL="https://github.com/ismaelgv/rnr/releases/download/v${RNR_VERSION}/rnr-v${RNR_VERSION}-x86_64-unknown-linux-musl.tar.gz"; \
     FILENAME=$(basename $URL); \
     TEMP_DIR="/tmp/rnr_extract"; \
