@@ -1,6 +1,8 @@
 FROM alpine:3.23
 
-LABEL version=0.1.10
+LABEL version=0.1.11
+ENV RNR_VERSION=0.5.1 \
+    RSNAME_VERSION=0.1.6
 
 RUN apk add --update --no-cache \
         curl \
@@ -18,7 +20,7 @@ RUN apk add --update --no-cache \
         sd && \
     rm -rf /var/cache/apk && \
     set -eux; \
-    URL="https://github.com/ismaelgv/rnr/releases/download/v0.5.1/rnr-v0.5.1-x86_64-unknown-linux-musl.tar.gz"; \
+    URL="https://github.com/ismaelgv/rnr/releases/download/v${RNR_VERSION}/rnr-v${RNR_VERSION}-x86_64-unknown-linux-musl.tar.gz"; \
     FILENAME=$(basename $URL); \
     TEMP_DIR="/tmp/rnr_extract"; \
     curl -L $URL -o /tmp/$FILENAME && \
@@ -28,7 +30,7 @@ RUN apk add --update --no-cache \
     chmod +x /usr/bin/rnr && \
     rm /tmp/$FILENAME && \
     rm -rf $TEMP_DIR && \
-    curl -L "https://github.com/atareao/rsname/releases/download/v0.1.5/rsname-linux-x86_64" -o /usr/bin/rsname && \
+    curl -L "https://github.com/atareao/rsname/releases/download/v${RSNAME_VERSION}/rsname-linux-x86_64" -o /usr/bin/rsname && \
     chmod +x /usr/bin/rsname && \
     mkdir -p /root/.config/fish/functions && \
     mkdir -p /root/.config/fish && \
