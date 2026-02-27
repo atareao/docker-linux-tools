@@ -18,7 +18,7 @@ RUN apk add --update --no-cache \
         sd && \
     rm -rf /var/cache/apk
 ENV RNR_VERSION=0.5.1 \
-    RSNAME_VERSION=0.1.9
+    RSNAME_VERSION=0.1.10
 RUN set -eux; \
     URL="https://github.com/ismaelgv/rnr/releases/download/v${RNR_VERSION}/rnr-v${RNR_VERSION}-x86_64-unknown-linux-musl.tar.gz"; \
     FILENAME=$(basename $URL); \
