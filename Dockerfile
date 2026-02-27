@@ -28,6 +28,8 @@ RUN apk add --update --no-cache \
     chmod +x /usr/bin/rnr && \
     rm /tmp/$FILENAME && \
     rm -rf $TEMP_DIR && \
+    curl -L "https://github.com/atareao/rsname/releases/download/v0.1.5/rsname-linux-x86_64" -o /usr/bin/rsname && \
+    chmod +x /usr/bin/rsname && \
     mkdir -p /root/.config/fish/functions && \
     mkdir -p /root/.config/fish && \
     echo 'starship init fish | source' > /root/.config/fish/config.fish && \
