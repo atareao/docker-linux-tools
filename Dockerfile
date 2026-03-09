@@ -1,6 +1,6 @@
 FROM alpine:3.23
 
-LABEL version=0.1.12
+LABEL version=0.1.13
 
 RUN apk add --update --no-cache \
         curl \
@@ -18,7 +18,8 @@ RUN apk add --update --no-cache \
         sd && \
     rm -rf /var/cache/apk
 ENV RNR_VERSION=0.5.1 \
-    RSNAME_VERSION=0.1.10
+    RSNAME_VERSION=0.1.10 \
+    DUST_VERSION=1.2.4
 RUN set -eux; \
     URL="https://github.com/ismaelgv/rnr/releases/download/v${RNR_VERSION}/rnr-v${RNR_VERSION}-x86_64-unknown-linux-musl.tar.gz"; \
     FILENAME=$(basename $URL); \
@@ -26,8 +27,18 @@ RUN set -eux; \
     curl -L $URL -o /tmp/$FILENAME && \
     mkdir -p $TEMP_DIR && \
     tar -xzf /tmp/$FILENAME -C $TEMP_DIR && \
-    mv $TEMP_DIR/rnr-v0.5.1-x86_64-unknown-linux-musl/rnr /usr/bin/rnr && \
+    mv $TEMP_DIR/rnr-v${RNR_VERSION}-x86_64-unknown-linux-musl/rnr /usr/bin/rnr && \
     chmod +x /usr/bin/rnr && \
+    rm /tmp/$FILENAME && \
+    rm -rf $TEMP_DIR && \
+    URL="https://github.com/bootandy/dust/releases/download/v${DUST_VERSION}/dust-v${DUST_VERSION}-x86_64-unknown-linux-musl.tar.gz"; \
+    FILENAME=$(basename $URL); \
+    TEMP_DIR="/tmp/dust_extract"; \
+    curl -L $URL -o /tmp/$FILENAME && \
+    mkdir -p $TEMP_DIR && \
+    tar -xzf /tmp/$FILENAME -C $TEMP_DIR && \
+    mv $TEMP_DIR/dust-v${DUST_VERSION}-x86_64-unknown-linux-musl/dust /usr/bin/dust && \
+    chmod +x /usr/bin/dust && \
     rm /tmp/$FILENAME && \
     rm -rf $TEMP_DIR && \
     curl -L "https://github.com/atareao/rsname/releases/download/v${RSNAME_VERSION}/rsname-linux-x86_64" -o /usr/bin/rsname && \
